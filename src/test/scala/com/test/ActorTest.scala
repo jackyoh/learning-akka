@@ -1,14 +1,30 @@
 package com.test
 
 import akka.actor.{ActorRef, ActorSystem, Props}
-import com.akkademy.message.{AkkademyDB, SetRequest}
+import com.akkademy.message.{AkkademyDB, ScalaPongActor, SetRequest}
 
-object ActorTest {
+import scala.concurrent.Await
+import akka.util.Timeout
 
-  def main(args: Array[String]) = {
-    val actorSystem = ActorSystem()
-    val actor: ActorRef = actorSystem.actorOf(ScalaPongActor props())
-    actor ! "HELLO WORLD"
-    actor ! SetRequest("key1", "value1")
+import scala.concurrent.duration._
+import akka.pattern.ask
+import org.scalatest.{FunSpecLike, Matchers}
+
+class ActorTest extends FunSpecLike with Matchers {
+  implicit val timeout = Timeout(5 seconds)
+
+  describe("actor test") {
+    it("should respond with Pong") {
+      val actorSystem = ActorSystem()
+      val actor: ActorRef = actorSystem.actorOf(props())
+      val future = actor ? "Ping"
+      val result = Await.result(future.mapTo[String], 1 second)
+      assert(result == "Pong")
+    }
   }
+
+  def props(): Props = {
+    Props(classOf[ScalaPongActor])
+  }
+
 }
