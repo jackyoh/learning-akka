@@ -30,6 +30,7 @@ class ScalaAskExamplesTest extends FunSpecLike with Matchers{
       (pongActor ? "Ping").onComplete({
         case x: Try[String] => println("replied with: " + x.get)
       })
+
     }
 
     it("should print to console 2") {
@@ -37,6 +38,15 @@ class ScalaAskExamplesTest extends FunSpecLike with Matchers{
           case x: String => println("replied with: " + x)
         })
     }
+
+    it("test ask Pong function") {
+      val result = askPong("Ping").map(x => x.charAt(0))
+      for(res <- result){
+        println(res)
+      }
+    }
+
+    def askPong(message: String): Future[String] = (pongActor ? message).mapTo[String]
   }
 
 
