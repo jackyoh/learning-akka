@@ -1,5 +1,6 @@
 package com.test
 
+import akka.actor.Status.{Failure, Success}
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import com.akkademy.message.ScalaPongActor
@@ -8,7 +9,8 @@ import org.scalatest.{FunSpecLike, Matchers}
 import scala.concurrent.duration._
 import akka.pattern.ask
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
+import scala.util.Try
 
 class ScalaAskExamplesTest extends FunSpecLike with Matchers{
   val system = ActorSystem()
@@ -21,7 +23,22 @@ class ScalaAskExamplesTest extends FunSpecLike with Matchers{
       val result = Await.result(future.mapTo[String], 1 second)
       assert(result == "Pong")
     }
-
   }
+  describe("Future Example") {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    it("should print to console 1") {
+      (pongActor ? "Ping").onComplete({
+        case x: Try[String] => println("replied with: " + x.get)
+      })
+    }
+
+    it("should print to console 2") {
+        (pongActor ? "Ping").onSuccess({
+          case x: String => println("replied with: " + x)
+        })
+    }
+  }
+
+
 
 }
